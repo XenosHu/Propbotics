@@ -76,15 +76,24 @@ def generate_gpt3_response(prompt_input):
         # query_results = cursor.fetchall()
 
         engine = create_engine(connection)
+        # llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
+        # service_context = ServiceContext.from_defaults(llm=llm)
+        # engine = create_engine(connection)
+        
+        # sql_database = SQLDatabase(engine)
+        # sql_query = chat_to_sql(prompt_input)
+
         llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
         service_context = ServiceContext.from_defaults(llm=llm)
-        engine = create_engine(connection)
         
         sql_database = SQLDatabase(engine)
+        
         inspector = inspect(engine)
         table_names = inspector.get_table_names()
 
-        sql_query = chat_to_sql(prompt_input)
+        # Generate SQL query
+        sql_query = chat_to_sql(prompt_input, sql_database) 
+
 
         if sql_query:
             try:
