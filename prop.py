@@ -78,7 +78,6 @@ def generate_gpt3_response(prompt_input):
         table_names = inspector.get_table_names()
         # Generate SQL query
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
-        st.write(prompt_input, sql_database, service_context)
 
         if sql_query and not sql_query.startswith("ERROR"):
             try:
@@ -88,7 +87,9 @@ def generate_gpt3_response(prompt_input):
                     # Remove the semicolon if it exists in the query
                     sql_query = sql_query.strip(";")
                     result = conn.execute(sql_query)
-                    query_results = result.fetchall()
+                    print(result)
+                    quesry_result = results
+                    #query_results = result.fetchall()
                     response_content = format_query_results(query_results)
             except Exception as e:
                 response_content = f"SQL Execution Error: {e}"
