@@ -3,3 +3,6 @@ numpy==1.24.2
 pandas
 openai==0.28
 mysql-connector-python
+llama-index
+transformers
+accelerate
