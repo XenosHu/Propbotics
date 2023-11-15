@@ -61,6 +61,8 @@ st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 def generate_gpt3_response(prompt_input):
     # First, check if it's a database-related query
     if "apartment" in prompt_input.lower():
+        # Generate SQL query using GPT-3.5 Turbo
+        sql_query = generate_sql_query(prompt_input)
         
         # Connect to the database and execute the query
         config = {
@@ -84,8 +86,6 @@ def generate_gpt3_response(prompt_input):
         inspector = inspect(engine)
         table_names = inspector.get_table_names()
 
-        # Generate SQL query using GPT-3.5 Turbo
-        sql_query = generate_sql_query(prompt_input)
         # Format and return the results
         response_content = format_query_results(query_results)
 
@@ -95,6 +95,7 @@ def generate_gpt3_response(prompt_input):
         # Handle non-database queries
         response_content = get_gpt3_response(prompt_input)
     return response_content
+
 
 def chat_to_sql(question: Union[str, List[str]], tables: Union[List[str], None] = None, synthesize_response: bool = True):    
     query_engine = NLSQLTableQueryEngine(
