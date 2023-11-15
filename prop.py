@@ -96,7 +96,8 @@ def generate_gpt3_response(prompt_input):
         response_content = get_gpt3_response(prompt_input)
     return response_content
 
-def chat_to_sql(question: Union[str, List[str]], tables: Union[List[str], None] = None, synthesize_response: bool = True):    query_engine = NLSQLTableQueryEngine(
+def chat_to_sql(question: Union[str, List[str]], tables: Union[List[str], None] = None, synthesize_response: bool = True):    
+    query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
         tables=tables,
         synthesize_response=synthesize_response,
