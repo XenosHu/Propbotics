@@ -68,10 +68,16 @@ def generate_gpt3_response(prompt_input):
     return response_content
 
 def generate_sql_query(user_input):
-    # Adjust the prompt to guide GPT-3.5 Turbo to generate SQL
-    prompt = f"Translate this user request into a SQL query: '{user_input}'"
+    # Description of the database schema
+    database_schema_info = (
+        "The database has two tables: Building_test and Unit_test. "
+        "Building_test includes BuildingID, Buildingname, website, location, address, description, building_image, postcode, and pet. "
+        "Unit_test includes UnitID, building_id, unit number, rent_price, unit_type, unit image, floor_plan, availability, description, broker fee, and available date."
+    )
+
+    # Formulate the prompt for GPT-3.5 Turbo
+    prompt = f"Given the database structure: {database_schema_info}. Translate this user request into an SQL query: '{user_input}'"
     
-    # Using the chat completion endpoint for GPT-3.5 Turbo
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -79,8 +85,9 @@ def generate_sql_query(user_input):
             {"role": "user", "content": prompt}
         ]
     )
-    return response.choices[0].message.content
-
+    generated_sql = response.choices[0].message.content
+    return generated_sql
+    
 def format_query_results(query_results):
     # Format the SQL query results into a readable string
     formatted_results = "Here are the apartments I found:\n"
