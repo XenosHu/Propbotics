@@ -1,10 +1,15 @@
 from llama_index.llms import OpenAI
-from llama_index import VectorStoreIndex,SimpleDirectoryReader
+from llama_index import VectorStoreIndex, SimpleDirectoryReader, SQLDatabase, ServiceContext
+from sqlalchemy import select, create_engine, MetaData, Table,inspect
+from llama_index.indices.struct_store.sql_query import NLSQLTableQueryEngine
 from IPython.display import Markdown, display
 import mysql.connector
 import streamlit as st
 import openai
 import os
+
+
+from IPython.display import Markdown, display
 
 # App title
 st.set_page_config(page_title="NYC Property Finder Chatbot")
