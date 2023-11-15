@@ -58,43 +58,41 @@ def clear_chat_history():
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 
-def generate_gpt3_response(prompt_input):
-    # First, check if it's a database-related query
-    if "apartment" in prompt_input.lower():
-        # Generate SQL query using GPT-3.5 Turbo
-        sql_query = generate_sql_query(prompt_input)
-        
-        # Connect to the database and execute the query
-        config = {
-            'user': 'propbotics',
-            'password': 'Propbotics123',
-            'host': 'chatbot.c0xmynwsxhmo.us-east-1.rds.amazonaws.com',
-            'database': 'chatbot',
-            'port': 3306
-        }
-        connection = mysql.connector.connect(**config)
-        cursor = connection.cursor()
-        cursor.execute(sql_query)
-        query_results = cursor.fetchall()
+if "apartment" in prompt_input.lower():
+    # # Generate SQL query using GPT-3.5 Turbo
+    # sql_query = generate_sql_query(prompt_input)
+    
+    # Connect to the database and execute the query
+    config = {
+        'user': 'propbotics',
+        'password': 'Propbotics123',
+        'host': 'chatbot.c0xmynwsxhmo.us-east-1.rds.amazonaws.com',
+        'database': 'chatbot',
+        'port': 3306
+    }
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    cursor.execute(sql_query)
+    query_results = cursor.fetchall()
 
-        engine = create_engine(connection)
-        llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
-        service_context = ServiceContext.from_defaults(llm=llm)
-        engine = create_engine(connection)
-        
-        sql_database = SQLDatabase(engine)
-        inspector = inspect(engine)
-        table_names = inspector.get_table_names()
+    engine = create_engine(connection)
+    llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
+    service_context = ServiceContext.from_defaults(llm=llm)
+    engine = create_engine(connection)
+    
+    sql_database = SQLDatabase(engine)
+    inspector = inspect(engine)
+    table_names = inspector.get_table_names()
 
-        # Format and return the results
-        response_content = format_query_results(query_results)
+    # Format and return the results
+    response_content = format_query_results(query_results)
 
-        cursor.close()
-        connection.close()
-    else:
-        # Handle non-database queries
-        response_content = get_gpt3_response(prompt_input)
-    return response_content
+    cursor.close()
+    connection.close()
+else:
+    # Handle non-database queries
+    response_content = get_gpt3_response(prompt_input)
+
 
 
 def chat_to_sql(question: Union[str, List[str]], tables: Union[List[str], None] = None, synthesize_response: bool = True):    
