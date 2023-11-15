@@ -60,8 +60,6 @@ st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 def generate_gpt3_response(prompt_input):
     # First, check if it's a database-related query
     if "apartment" in prompt_input.lower():
-        # Generate SQL query using GPT-3.5 Turbo
-        sql_query = generate_sql_query(prompt_input)
         
         # Connect to the database and execute the query
         config = {
@@ -76,60 +74,91 @@ def generate_gpt3_response(prompt_input):
         cursor.execute(sql_query)
         query_results = cursor.fetchall()
 
+        engine = create_engine(connection)
+        llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
+        service_context = ServiceContext.from_defaults(llm=llm)
+        engine = create_engine(connection)
+        
+        sql_database = SQLDatabase(engine)
+        inspector = inspect(engine)
+        table_names = inspector.get_table_names()
+
+        # Generate SQL query using GPT-3.5 Turbo
+        sql_query = generate_sql_query(prompt_input)
         # Format and return the results
         response_content = format_query_results(query_results)
-        
 
         cursor.close()
         connection.close()
     else:
         # Handle non-database queries
         response_content = get_gpt3_response(prompt_input)
-        
-
     return response_content
 
-def generate_sql_query(user_input):
-    # Description of the database schema
-    database_schema_info = (
-        "The database has two tables: Building_test and Unit_test. "
-        "Building_test includes BuildingID, Buildingname, website, location, address, description, building_image, postcode, and pet. "
-        "Unit_test includes UnitID, building_id, unit number, rent_price, unit_type, unit image, floor_plan, availability, description, broker fee, and available date."
-    )
-
-    # Determine the context of the query
-    if "apartment" in user_input.lower():
-        # Context for searching an apartment
-        table_context = "Generate an SQL query to find information from the Building_test table."
-    elif "availability" in user_input.lower():
-        # Context for checking availability
-        table_context = "Generate an SQL query to find availability information from the Unit_test table."
-    else:
-        # General context
-        table_context = "Generate an SQL query based on general information about buildings and units."
-
-    # Updated prompt for GPT-3.5 Turbo
-    prompt = f"Given the database structure: {database_schema_info}, and context: {table_context}, translate this user request into an SQL query: '{user_input}'"
-
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    generated_sql = response.choices[0].message.content
-    log_message(f"Generated SQL: {generated_sql}")
-
-    return generated_sql
+def chat_to_sql(question: str | list[str],tables: list[str] | None = None,synthesize_response: bool = True,):
+    query_engine = NLSQLTableQueryEngine(
+        sql_database=sql_database,
+        tables=tables,
+        synthesize_response=synthesize_response,
+        service_context=service_context,
+        )
     
-def format_query_results(query_results):
-    # Format the SQL query results into a readable string
-    formatted_results = "Here are the apartments I found:\n"
-    for row in query_results:
-        formatted_results += f"Apartment: {row[0]}, Location: {row[1]}, Price: {row[2]}\n"
-    log_message(f"Generated SQL: {formatted_results}")
-    return formatted_results
+    try:
+        response = query_engine.query(question)
+        response_md = str(response)
+        sql = response.metadata["sql_query"]
+    except Exception as ex:
+        response_md = "Error"
+        sql = f"ERROR: {str(ex)}"
+
+   
+    display(Markdown(response_template.format(
+        question=question,
+        response=response_md,
+        sql=sql,
+    )))
+
+# def generate_sql_query(user_input):
+#     # Description of the database schema
+#     database_schema_info = (
+#         "The database has two tables: Building_test and Unit_test. "
+#         "Building_test includes BuildingID, Buildingname, website, location, address, description, building_image, postcode, and pet. "
+#         "Unit_test includes UnitID, building_id, unit number, rent_price, unit_type, unit image, floor_plan, availability, description, broker fee, and available date."
+#     )
+
+#     # Determine the context of the query
+#     if "apartment" in user_input.lower():
+#         # Context for searching an apartment
+#         table_context = "Generate an SQL query to find information from the Building_test table."
+#     elif "availability" in user_input.lower():
+#         # Context for checking availability
+#         table_context = "Generate an SQL query to find availability information from the Unit_test table."
+#     else:
+#         # General context
+#         table_context = "Generate an SQL query based on general information about buildings and units."
+
+#     # Updated prompt for GPT-3.5 Turbo
+#     prompt = f"Given the database structure: {database_schema_info}, and context: {table_context}, translate this user request into an SQL query: '{user_input}'"
+
+#     response = openai.ChatCompletion.create(
+#         model="gpt-3.5-turbo",
+#         messages=[
+#             {"role": "system", "content": "You are a helpful assistant."},
+#             {"role": "user", "content": prompt}
+#         ]
+#     )
+#     generated_sql = response.choices[0].message.content
+#     log_message(f"Generated SQL: {generated_sql}")
+
+#     return generated_sql
+    
+# def format_query_results(query_results):
+#     # Format the SQL query results into a readable string
+#     formatted_results = "Here are the apartments I found:\n"
+#     for row in query_results:
+#         formatted_results += f"Apartment: {row[0]}, Location: {row[1]}, Price: {row[2]}\n"
+#     log_message(f"Generated SQL: {formatted_results}")
+#     return formatted_results
 
 def get_gpt3_response(prompt_input):
     # Regular GPT-3.5 Turbo response handling
