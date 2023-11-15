@@ -8,3 +8,4 @@ llama-index
 transformers
 accelerate
 IPython
+typing
