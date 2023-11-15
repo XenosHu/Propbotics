@@ -85,6 +85,8 @@ def generate_gpt3_response(prompt_input):
                 st.write(f"Executing SQL query: {sql_query}")
                 # Execute the SQL query
                 with engine.connect() as conn:
+                    # Remove the semicolon if it exists in the query
+                    sql_query = sql_query.strip(";")
                     result = conn.execute(sql_query)
                     query_results = result.fetchall()
                     response_content = format_query_results(query_results)
