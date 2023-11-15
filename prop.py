@@ -82,6 +82,7 @@ def generate_gpt3_response(prompt_input):
 
         if sql_query and not sql_query.startswith("ERROR"):
             try:
+                st.write(f"Executing SQL query: {sql_query}")
                 # Execute the SQL query
                 with engine.connect() as conn:
                     result = conn.execute(sql_query)
@@ -90,7 +91,7 @@ def generate_gpt3_response(prompt_input):
             except Exception as e:
                 response_content = f"SQL Execution Error: {e}"
         else:
-            response_content = sql_query  # Display the error message from chat_to_sql
+            response_content = "No valid SQL query generated." # Display the error message from chat_to_sql
     else:
         # Handle non-database queries
         response_content = get_gpt3_response(prompt_input)
