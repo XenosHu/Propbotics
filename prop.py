@@ -4,6 +4,7 @@ from sqlalchemy import select, create_engine, MetaData, Table,inspect
 from llama_index.indices.struct_store.sql_query import NLSQLTableQueryEngine
 from IPython.display import Markdown, display
 import mysql.connector
+from typing import Union, List
 import streamlit as st
 import openai
 import os
@@ -95,8 +96,7 @@ def generate_gpt3_response(prompt_input):
         response_content = get_gpt3_response(prompt_input)
     return response_content
 
-def chat_to_sql(question: str | list[str],tables: list[str] | None = None,synthesize_response: bool = True,):
-    query_engine = NLSQLTableQueryEngine(
+def chat_to_sql(question: Union[str, List[str]], tables: Union[List[str], None] = None, synthesize_response: bool = True):    query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
         tables=tables,
         synthesize_response=synthesize_response,
