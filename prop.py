@@ -68,16 +68,18 @@ def generate_gpt3_response(prompt_input):
     return response_content
 
 def generate_sql_query(user_input):
-    # This function should use GPT-3.5 Turbo to generate an SQL query based on user input
-    # You might need to use a specific prompt structure to guide the model in generating SQL queries
-    # Example:
-    prompt = f"Translate this request into an SQL query: '{user_input}'"
-    response = openai.Completion.create(
+    # Adjust the prompt to guide GPT-3.5 Turbo to generate SQL
+    prompt = f"Translate this user request into a SQL query: '{user_input}'"
+    
+    # Using the chat completion endpoint for GPT-3.5 Turbo
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        prompt=prompt,
-        max_tokens=100
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message.content
 
 def format_query_results(query_results):
     # Format the SQL query results into a readable string
