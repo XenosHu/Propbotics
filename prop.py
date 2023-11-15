@@ -23,9 +23,6 @@ with st.sidebar:
             # Directly set the API key in OpenAI configuration
             openai.api_key = openai_api_key
 
-            # Optionally, you can add a simple call here to validate the key
-            # For example, a small request to the API and catch any exceptions
-
             st.success('API key accepted! You can now use the chatbot.', icon='✅')
         except Exception as e:
             st.error(f"Error with API key: {str(e)}")
@@ -71,10 +68,6 @@ def generate_gpt3_response(prompt_input):
         }
         # connection = mysql.connector.connect(**config)
         connection = f"mysql+mysqlconnector://{config['user']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}"
-        # cursor = connection.cursor()
-        # cursor.execute(sql_query)
-        # query_results = cursor.fetchall()
-
         engine = create_engine(connection)
         # llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
         # service_context = ServiceContext.from_defaults(llm=llm)
@@ -85,14 +78,13 @@ def generate_gpt3_response(prompt_input):
 
         llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
         service_context = ServiceContext.from_defaults(llm=llm)
-        
         sql_database = SQLDatabase(engine)
         
         inspector = inspect(engine)
         table_names = inspector.get_table_names()
 
         # Generate SQL query
-        sql_query = chat_to_sql(prompt_input, sql_database) 
+        sql_query = chat_to_sql(prompt_input, sql_database, service_context)
 
 
         if sql_query:
@@ -107,19 +99,16 @@ def generate_gpt3_response(prompt_input):
 
         return response_content
 
-    # # Format and return the results
-    # response_content = format_query_results(query_results)
-
     # cursor.close()
     # connection.close()
 
-def chat_to_sql(question: Union[str, List[str]], sql_database, tables: Union[List[str], None] = None, synthesize_response: bool = True):    
+def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
         tables=tables,
         synthesize_response=synthesize_response,
         service_context=service_context,
-        )
+    )
     
     try:
         response = query_engine.query(question)
