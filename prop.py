@@ -76,7 +76,6 @@ def generate_gpt3_response(prompt_input):
         
         inspector = inspect(engine)
         table_names = inspector.get_table_names()
-        st.write(table_names)
         # Generate SQL query
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
 
@@ -122,6 +121,7 @@ response_template = """
 # Define chat_to_sql function
 def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
     st.write(tables)
+    st.write(question)
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
         tables=tables,
