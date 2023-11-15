@@ -71,9 +71,9 @@ if "apartment" in prompt_input.lower():
         'port': 3306
     }
     connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
-    cursor.execute(sql_query)
-    query_results = cursor.fetchall()
+    # cursor = connection.cursor()
+    # cursor.execute(sql_query)
+    # query_results = cursor.fetchall()
 
     engine = create_engine(connection)
     llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
@@ -84,11 +84,11 @@ if "apartment" in prompt_input.lower():
     inspector = inspect(engine)
     table_names = inspector.get_table_names()
 
-    # Format and return the results
-    response_content = format_query_results(query_results)
+    # # Format and return the results
+    # response_content = format_query_results(query_results)
 
-    cursor.close()
-    connection.close()
+    # cursor.close()
+    # connection.close()
 else:
     # Handle non-database queries
     response_content = get_gpt3_response(prompt_input)
