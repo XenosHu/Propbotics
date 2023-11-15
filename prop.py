@@ -1,3 +1,4 @@
+import mysql.connector
 import streamlit as st
 import openai
 import os
@@ -35,7 +36,6 @@ def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
-import mysql.connector
 
 def generate_gpt3_response(prompt_input):
     # First, check if it's a database-related query
