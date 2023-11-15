@@ -102,6 +102,21 @@ def generate_gpt3_response(prompt_input):
     # cursor.close()
     # connection.close()
 
+response_template = """
+## Question
+
+{question}
+
+## Answer
+```
+{response}
+```
+## Generated SQL Query
+```
+{sql}
+```
+"""
+
 def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
