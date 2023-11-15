@@ -32,6 +32,15 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
 
+def log_message(message):
+    """Append a message to the log list."""
+    st.session_state.logs.append(message)
+
+def display_logs():
+    """Display logs in Streamlit."""
+    for log in st.session_state.logs:
+        st.text(log)
+        
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
@@ -58,12 +67,14 @@ def generate_gpt3_response(prompt_input):
 
         # Format and return the results
         response_content = format_query_results(query_results)
+        
 
         cursor.close()
         connection.close()
     else:
         # Handle non-database queries
         response_content = get_gpt3_response(prompt_input)
+        
 
     return response_content
 
@@ -86,6 +97,8 @@ def generate_sql_query(user_input):
         ]
     )
     generated_sql = response.choices[0].message.content
+    log_message(f"Generated SQL: {generated_sql}")
+    
     return generated_sql
     
 def format_query_results(query_results):
@@ -93,6 +106,7 @@ def format_query_results(query_results):
     formatted_results = "Here are the apartments I found:\n"
     for row in query_results:
         formatted_results += f"Apartment: {row[0]}, Location: {row[1]}, Price: {row[2]}\n"
+    log_message(f"Generated SQL: {formatted_results}")
     return formatted_results
 
 def get_gpt3_response(prompt_input):
