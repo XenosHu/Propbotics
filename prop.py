@@ -80,19 +80,19 @@ def generate_gpt3_response(prompt_input):
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
 
         if sql_query and not sql_query.startswith("ERROR"):
-            try:
+            # try:
                 st.write(f"Executing SQL query: {sql_query}")
                 # Execute the SQL query
                 with engine.connect() as conn:
                     # Remove the semicolon if it exists in the query
-                    sql_query = sql_query.strip(";")
+                    sql_query = sql_query
                     result = conn.execute(sql_query)
                     st.write(result)
                     quesry_result = result
                     #query_results = result.fetchall()
                     response_content = format_query_results(query_results)
-            except Exception as e:
-                response_content = f"SQL Execution Error: {e}"
+            # except Exception as e:
+            #     response_content = f"SQL Execution Error: {e}"
         else:
             response_content = "No valid SQL query generated." # Display the error message from chat_to_sql
     else:
@@ -122,8 +122,6 @@ response_template = """
 
 # Define chat_to_sql function
 def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
-    st.write(tables)
-    st.write(question)
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
         tables=tables,
