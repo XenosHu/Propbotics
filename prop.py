@@ -9,8 +9,16 @@ st.set_page_config(page_title="NYC Property Finder Chatbot")
 with st.sidebar:
     openai_api_key = st.text_input('Enter OpenAI API key:', type='password')
     if openai_api_key:
-        st.success('API key accepted! You can now use the chatbot.', icon='✅')
-        os.environ['OPENAI_API_KEY'] = openai_api_key
+        try:
+            # Directly set the API key in OpenAI configuration
+            openai.api_key = openai_api_key
+
+            # Optionally, you can add a simple call here to validate the key
+            # For example, a small request to the API and catch any exceptions
+
+            st.success('API key accepted! You can now use the chatbot.', icon='✅')
+        except Exception as e:
+            st.error(f"Error with API key: {str(e)}")
     else:
         st.warning('Please enter your OpenAI API key!', icon='⚠️')
 
