@@ -104,7 +104,7 @@ def generate_gpt3_response(prompt_input):
     # cursor.close()
     # connection.close()
 
-def chat_to_sql(question: Union[str, List[str]], tables: Union[List[str], None] = None, synthesize_response: bool = True):    
+def chat_to_sql(question: Union[str, List[str]], sql_database, tables: Union[List[str], None] = None, synthesize_response: bool = True):    
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
         tables=tables,
