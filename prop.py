@@ -78,6 +78,7 @@ def generate_gpt3_response(prompt_input):
         table_names = inspector.get_table_names()
         # Generate SQL query
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
+        st.write(prompt_input, sql_database, service_context)
 
         if sql_query and not sql_query.startswith("ERROR"):
             try:
