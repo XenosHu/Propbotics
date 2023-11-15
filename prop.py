@@ -88,9 +88,20 @@ def generate_sql_query(user_input):
         "Building_test includes BuildingID, Buildingname, website, location, address, description, building_image, postcode, and pet. "
         "Unit_test includes UnitID, building_id, unit number, rent_price, unit_type, unit image, floor_plan, availability, description, broker fee, and available date."
     )
+    # Determine the context of the query
+    if "apartment" in user_input.lower():
+        # Context for searching an apartment
+        table_context = "Focus on the Building_test table."
+    elif "availability" in user_input.lower():
+        # Context for checking availability
+        table_context = "Focus on the Unit_test table."
+    else:
+        # General context
+        table_context = "General information about buildings and units."
 
+    prompt = f"Given the database structure: {database_schema_info}, and context of {table_context},  Translate this user request into an MYSQL query: '{user_input}'"
     # Formulate the prompt for GPT-3.5 Turbo
-    prompt = f"Given the database structure: {database_schema_info}. Translate this user request into an SQL query: '{user_input}'"
+    #prompt = f"Given the database structure: {database_schema_info}. Translate this user request into an SQL query: '{user_input}'"
     
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
