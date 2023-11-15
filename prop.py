@@ -177,13 +177,17 @@ def chat_to_sql(question, sql_database, service_context, tables=None, synthesize
 
 #     return generated_sql
     
-# def format_query_results(query_results):
-#     # Format the SQL query results into a readable string
-#     formatted_results = "Here are the apartments I found:\n"
-#     for row in query_results:
-#         formatted_results += f"Apartment: {row[0]}, Location: {row[1]}, Price: {row[2]}\n"
-#     log_message(f"Generated SQL: {formatted_results}")
-#     return formatted_results
+def format_query_results(query_results):
+    # Format the SQL query results into a readable string
+    formatted_results = "Here are the apartments I found:\n"
+    if len(query_results)>0:
+        for row in query_results:
+            formatted_results = formatted_results + f"Apartment: {row[0]}, Location: {row[1]}, Price: {row[2]}\n"
+        log_message(f"Generated SQL: {formatted_results}")
+    else:
+        log_message(f"Generated SQL: No result found}")
+        formatted_results = "None"
+    return formatted_results
 
 def get_gpt3_response(prompt_input):
     # Regular GPT-3.5 Turbo response handling
