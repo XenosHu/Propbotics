@@ -6,3 +6,4 @@ mysql-connector-python
 llama-index
 transformers
 accelerate
+IPython.display
