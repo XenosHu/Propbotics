@@ -36,17 +36,30 @@ def clear_chat_history():
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 # Function for generating GPT-3.5 Turbo response
+# def generate_gpt3_response(prompt_input):
+#     conversation = [ {"role": "system", "content": "You are a helpful assistant."} ]
+#     for m in st.session_state.messages:
+#         conversation.append({"role": m["role"], "content": m["content"]})
+#     conversation.append({"role": "user", "content": prompt_input})
+    
+#     response = openai.ChatCompletion.create(
+#         model="gpt-3.5-turbo",
+#         messages=conversation
+#     )
+#     return response['choices'][0]['message']['content']
+
 def generate_gpt3_response(prompt_input):
-    conversation = [ {"role": "system", "content": "You are a helpful assistant."} ]
+    conversation = [{"role": "system", "content": "You are a helpful assistant."}]
     for m in st.session_state.messages:
         conversation.append({"role": m["role"], "content": m["content"]})
     conversation.append({"role": "user", "content": prompt_input})
-    
+
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=conversation
+        messages=conversation,
+        max_tokens=300  # Increased from the default to allow longer responses
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 # User-provided prompt
 if prompt := st.chat_input(disabled=not openai_api_key):
