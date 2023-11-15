@@ -76,7 +76,7 @@ def generate_gpt3_response(prompt_input):
         
         inspector = inspect(engine)
         table_names = inspector.get_table_names()
-
+        st.write(table_names)
         # Generate SQL query
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
 
