@@ -185,7 +185,7 @@ def format_query_results(query_results):
             formatted_results = formatted_results + f"Apartment: {row[0]}, Location: {row[1]}, Price: {row[2]}\n"
         log_message(f"Generated SQL: {formatted_results}")
     else:
-        log_message(f"Generated SQL: No result found}")
+        log_message(f"Generated SQL: No result found")
         formatted_results = "None"
     return formatted_results
 
