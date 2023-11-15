@@ -23,14 +23,11 @@ with st.sidebar:
     else:
         st.warning('Please enter your OpenAI API key!', icon='⚠️')
 
-# Store LLM generated responses
+
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
-
-# Display or clear chat messages
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
+if "logs" not in st.session_state:
+    st.session_state.logs = []
 
 def log_message(message):
     """Append a message to the log list."""
@@ -40,7 +37,13 @@ def display_logs():
     """Display logs in Streamlit."""
     for log in st.session_state.logs:
         st.text(log)
-        
+
+# Display or clear chat messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.write(message["content"])
+
+
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
