@@ -1,6 +1,6 @@
 from llama_index.llms import OpenAI
 from llama_index import VectorStoreIndex, SimpleDirectoryReader, SQLDatabase, ServiceContext
-from sqlalchemy import select, create_engine, MetaData, Table,inspect
+from sqlalchemy import select, create_engine, MetaData, Table, inspect, text
 from llama_index.indices.struct_store.sql_query import NLSQLTableQueryEngine
 from IPython.display import Markdown, display
 import mysql.connector
@@ -86,7 +86,7 @@ def generate_gpt3_response(prompt_input):
                 with engine.connect() as conn:
                     # Remove the semicolon if it exists in the query
                     sql_query = sql_query
-                    result = conn.execute(sql_query)
+                    result = conn.execute(text(sql_query))
                     st.write(result)
                     quesry_result = result
                     #query_results = result.fetchall()
