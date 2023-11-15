@@ -69,7 +69,8 @@ def generate_gpt3_response(prompt_input):
             'database': 'chatbot',
             'port': 3306
         }
-        connection = mysql.connector.connect(**config)
+        # connection = mysql.connector.connect(**config)
+        connection = f"mysql+mysqlconnector://{config['user']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}"
         # cursor = connection.cursor()
         # cursor.execute(sql_query)
         # query_results = cursor.fetchall()
