@@ -117,7 +117,7 @@ response_template = """
 ```
 """
 
-def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
+def chat_to_sql(question, sql_database, service_context, tables=table_names, synthesize_response=True):
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
         tables=tables,
