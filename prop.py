@@ -69,12 +69,6 @@ def generate_gpt3_response(prompt_input):
         # connection = mysql.connector.connect(**config)
         connection = f"mysql+mysqlconnector://{config['user']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}"
         engine = create_engine(connection)
-        # llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
-        # service_context = ServiceContext.from_defaults(llm=llm)
-        # engine = create_engine(connection)
-        
-        # sql_database = SQLDatabase(engine)
-        # sql_query = chat_to_sql(prompt_input)
 
         llm = OpenAI(temperature=0.5, model="gpt-3.5-turbo-16k")
         service_context = ServiceContext.from_defaults(llm=llm)
@@ -86,18 +80,23 @@ def generate_gpt3_response(prompt_input):
         # Generate SQL query
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
 
-
         if sql_query:
             try:
-                cursor.execute(sql_query)
-                query_results = cursor.fetchall()
+                # Execute SQL query and format results
+                connection = engine.connect()
+                result = connection.execute(sql_query)
+                query_results = result.fetchall()
                 response_content = format_query_results(query_results)
+                connection.close()
             except Exception as e:
                 response_content = f"SQL Execution Error: {e}"
         else:
             response_content = "No valid SQL query generated."
+    else:
+        # Handle non-database queries
+        response_content = get_gpt3_response(prompt_input)
 
-        return response_content
+    return response_content
 
     # cursor.close()
     # connection.close()
@@ -117,7 +116,8 @@ response_template = """
 ```
 """
 
-def chat_to_sql(question, sql_database, service_context, tables=table_names, synthesize_response=True):
+# Define chat_to_sql function
+def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
         tables=tables,
@@ -127,13 +127,10 @@ def chat_to_sql(question, sql_database, service_context, tables=table_names, syn
     
     try:
         response = query_engine.query(question)
-        response_md = str(response)
         sql = response.metadata["sql_query"]
+        return sql
     except Exception as ex:
-        response_md = "Error"
-        sql = f"ERROR: {str(ex)}"
-
-   
+        return f"ERROR: {str(ex)}"
     display(Markdown(response_template.format(
         question=question,
         response=response_md,
