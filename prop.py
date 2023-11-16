@@ -165,7 +165,7 @@ response_template = """
 #         sql=sql,
 #     )))
 
-def chat_to_sql(question, sql_database, service_context, config, synthesize_response=True):
+def chat_to_sql(question, sql_database, service_context, synthesize_response=True):
     relevant_tables = determine_relevant_tables(question, config)
 
     query_engine = NLSQLTableQueryEngine(
