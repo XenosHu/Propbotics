@@ -104,18 +104,14 @@ def generate_gpt3_response(prompt_input,config):
             table_name = extract_table_name(sql_query)
             if table_name:
                 columns = get_columns(table_name, config)
-                # Check if the query columns are valid
-                if all(column in columns for column in get_columns(sql_query)):
-                    try:
-                        # Execute the SQL query
-                        with engine.connect() as conn:
-                            result = conn.execute(text(sql_query))
-                            query_results = result.fetchall()
-                            response_content = format_query_results(query_results)
-                    except SQLAlchemyError as e:
-                        response_content = f"SQL Execution Error: {e}"
-                else:
-                    response_content = "The query references columns that do not exist in the table."
+                try:
+                    # Execute the SQL query
+                    with engine.connect() as conn:
+                        result = conn.execute(text(sql_query))
+                        query_results = result.fetchall()
+                        response_content = format_query_results(query_results)
+                except SQLAlchemyError as e:
+                    response_content = f"SQL Execution Error: {e}"
             else:
                 response_content = "Could not determine the table from the query."
         else:
