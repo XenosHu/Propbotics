@@ -21,6 +21,11 @@ config = {
     'port': 3306
 }
 
+def engin_init(Config):
+    connection = f"mysql+mysqlconnector://{config['user']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}"
+    engine = create_engine(connection)
+    return engine
+
 # OpenAI Credentials
 with st.sidebar:
     openai_api_key = st.text_input('Enter OpenAI API key:', type='password')
