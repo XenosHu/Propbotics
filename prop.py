@@ -141,14 +141,36 @@ response_template = """
 ```
 """
 
-# Define chat_to_sql function
-def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
-    table_name = extract_table_name(sql_query)
-    columns = get_columns(table_name, config)
+# # Define chat_to_sql function
+# def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
+#     # table_name = extract_table_name(sql_query)
+#     # columns = get_columns(table_name, config)
     
+#     query_engine = NLSQLTableQueryEngine(
+#         sql_database=sql_database,
+#         tables=tables,
+#         synthesize_response=synthesize_response,
+#         service_context=service_context,
+#     )
+    
+#     try:
+#         response = query_engine.query(question)
+#         sql = response.metadata["sql_query"]
+#         return sql
+#     except Exception as ex:
+#         return f"ERROR: {str(ex)}"
+#     display(Markdown(response_template.format(
+#         question=question,
+#         response=response_md,
+#         sql=sql,
+#     )))
+
+def chat_to_sql(question, sql_database, service_context, config, synthesize_response=True):
+    relevant_tables = determine_relevant_tables(question, config)
+
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
-        tables=table_name,
+        tables=relevant_tables,
         synthesize_response=synthesize_response,
         service_context=service_context,
     )
@@ -164,7 +186,25 @@ def chat_to_sql(question, sql_database, service_context, tables=None, synthesize
         response=response_md,
         sql=sql,
     )))
+        
+def determine_relevant_tables(question, config):
+    # A basic and rudimentary mapping of keywords to table names
+    keyword_to_table = {
+        "apartment": "Building_test",  # Assuming questions about apartments map to the 'Building_test' table
+        "unit": "Unit_test",           # Assuming questions about units map to the 'Unit_test' table
+        # Add more mappings as needed
+    }
 
+    relevant_tables = []
+
+    # Check if any keyword in the mapping is in the question
+    for keyword, table in keyword_to_table.items():
+        if keyword in question.lower():
+            relevant_tables.append(table)
+
+    # Return the list of relevant tables based on the question
+    return relevant_tables
+    
 def extract_table_name(query):
     # A basic regex pattern for a simple SELECT query
     # This pattern assumes the query is well-formed and straightforward
