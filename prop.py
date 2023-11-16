@@ -77,21 +77,36 @@ def generate_gpt3_response(prompt_input):
         # Generate SQL query
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
 
+        # if sql_query and not sql_query.startswith("ERROR"):
+        #     # try:
+        #         st.write(f"Executing SQL query: {sql_query}")
+        #         # Execute the SQL query
+        #         with engine.connect() as conn:
+        #             # Remove the semicolon if it exists in the query
+        #             sql_query = sql_query
+        #             query_results = conn.execute(text(sql_query))
+        #             st.write(query_results)
+        #             #query_results = result.fetchall()
+        #             response_content = format_query_results(query_results)
+        #     # except Exception as e:
+        #     #     response_content = f"SQL Execution Error: {e}"
+        # else:
+        #     response_content = "No valid SQL query generated." # Display the error message from chat_to_sql
         if sql_query and not sql_query.startswith("ERROR"):
-            # try:
-                st.write(f"Executing SQL query: {sql_query}")
-                # Execute the SQL query
+            try:
                 with engine.connect() as conn:
-                    # Remove the semicolon if it exists in the query
-                    sql_query = sql_query
-                    query_results = conn.execute(text(sql_query))
-                    st.write(query_results)
-                    #query_results = result.fetchall()
-                    response_content = format_query_results(query_results)
-            # except Exception as e:
-            #     response_content = f"SQL Execution Error: {e}"
+                    result = conn.execute(text(sql_query))
+                    st.write(query_results)            # Execute the SQL query
+                    query_results = result.fetchall()      # Fetch all results
+                    # Format and display the results
+                    if query_results:
+                        response_content = format_query_results(query_results)
+                    else:
+                        response_content = "No results found."
+            except Exception as e:
+                response_content = f"SQL Execution Error: {e}"
         else:
-            response_content = "No valid SQL query generated." # Display the error message from chat_to_sql
+            response_content = "No valid SQL query generated."
     else:
         # Handle non-database queries
         response_content = get_gpt3_response(prompt_input)
@@ -162,15 +177,10 @@ def get_columns(table_name, config):
     return table_columns
     
 def format_query_results(query_results):
-    # Format the SQL query results into a readable string
-    formatted_results = "Here are the apartments I found:\n"
-    # if len(query_results)>0:
+    # Format the results into a readable format
+    formatted_results = "Here are the results:\n"
     for row in query_results:
-        formatted_results = formatted_results + f"Apartment: {row[0]}, Location: {row[1]}, Price: {row[2]}\n"
-        # log_message(f"Generated SQL: {formatted_results}")
-    # else:
-    #     log_message(f"Generated SQL: No result found")
-    #     formatted_results = "None"
+        formatted_results += f"{row}\n"
     return formatted_results
 
 def get_gpt3_response(prompt_input):
