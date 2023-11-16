@@ -13,6 +13,14 @@ import re
 # App title
 st.set_page_config(page_title="Property Finder")
 
+config = {
+    'user': 'propbotics',
+    'password': 'Propbotics123',
+    'host': 'chatbot.c0xmynwsxhmo.us-east-1.rds.amazonaws.com',
+    'database': 'chatbot',
+    'port': 3306
+}
+
 # OpenAI Credentials
 with st.sidebar:
     openai_api_key = st.text_input('Enter OpenAI API key:', type='password')
@@ -52,18 +60,12 @@ def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
-def generate_gpt3_response(prompt_input):
+def generate_gpt3_response(prompt_input,config):
     response_content = ""
 
     if "apartment" in prompt_input.lower():
     # Connect to the database and execute the query
-        config = {
-            'user': 'propbotics',
-            'password': 'Propbotics123',
-            'host': 'chatbot.c0xmynwsxhmo.us-east-1.rds.amazonaws.com',
-            'database': 'chatbot',
-            'port': 3306
-        }
+
         # connection = mysql.connector.connect(**config)
         connection = f"mysql+mysqlconnector://{config['user']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}"
         engine = create_engine(connection)
@@ -213,6 +215,6 @@ if prompt := st.chat_input(disabled=not openai_api_key):
     if st.session_state.messages[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = generate_gpt3_response(prompt)
+                response = generate_gpt3_response(prompt,config)
                 st.write(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
