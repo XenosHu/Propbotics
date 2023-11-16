@@ -10,11 +10,8 @@ import openai
 import os
 import re
 
-
-from IPython.display import Markdown, display
-
 # App title
-st.set_page_config(page_title="NYC Property Finder Chatbot")
+st.set_page_config(page_title="Property Finder")
 
 # OpenAI Credentials
 with st.sidebar:
@@ -101,7 +98,6 @@ def generate_gpt3_response(prompt_input):
 
     return response_content
 
-
     # cursor.close()
     # connection.close()
 
@@ -141,39 +137,29 @@ def chat_to_sql(question, sql_database, service_context, tables=None, synthesize
         sql=sql,
     )))
 
-# def generate_sql_query(user_input):
-#     # Description of the database schema
-#     database_schema_info = (
-#         "The database has two tables: Building_test and Unit_test. "
-#         "Building_test includes BuildingID, Buildingname, website, location, address, description, building_image, postcode, and pet. "
-#         "Unit_test includes UnitID, building_id, unit number, rent_price, unit_type, unit image, floor_plan, availability, description, broker fee, and available date."
-#     )
+def extract_table_name(query):
+    # A basic regex pattern for a simple SELECT query
+    # This pattern assumes the query is well-formed and straightforward
+    pattern = r"FROM\s+([a-zA-Z0-9_]+)"
 
-#     # Determine the context of the query
-#     if "apartment" in user_input.lower():
-#         # Context for searching an apartment
-#         table_context = "Generate an SQL query to find information from the Building_test table."
-#     elif "availability" in user_input.lower():
-#         # Context for checking availability
-#         table_context = "Generate an SQL query to find availability information from the Unit_test table."
-#     else:
-#         # General context
-#         table_context = "Generate an SQL query based on general information about buildings and units."
+    # Find matches in the query
+    match = re.search(pattern, query, re.IGNORECASE)
 
-#     # Updated prompt for GPT-3.5 Turbo
-#     prompt = f"Given the database structure: {database_schema_info}, and context: {table_context}, translate this user request into an SQL query: '{user_input}'"
+    if match:
+        # Return the first captured group (the table name)
+        return match.group(1)
+    else:
+        return None
 
-#     response = openai.ChatCompletion.create(
-#         model="gpt-3.5-turbo",
-#         messages=[
-#             {"role": "system", "content": "You are a helpful assistant."},
-#             {"role": "user", "content": prompt}
-#         ]
-#     )
-#     generated_sql = response.choices[0].message.content
-#     log_message(f"Generated SQL: {generated_sql}")
-
-#     return generated_sql
+def get_columns(table_name, config):
+    engine = engin_init(config)
+    metadata = MetaData()
+    metadata.reflect(bind=engine)
+    table = metadata.tables[table_name]
+    table_columns = []
+    for column in table.columns:
+        table_columns.append(column.name)
+    return table_columns
     
 def format_query_results(query_results):
     # Format the SQL query results into a readable string
