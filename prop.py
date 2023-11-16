@@ -105,7 +105,7 @@ def generate_gpt3_response(prompt_input,config):
             if table_name:
                 columns = get_columns(table_name, config)
                 # Check if the query columns are valid
-                if all(column in columns for column in extract_columns(sql_query)):
+                if all(column in columns for column in get_columns(sql_query)):
                     try:
                         # Execute the SQL query
                         with engine.connect() as conn:
