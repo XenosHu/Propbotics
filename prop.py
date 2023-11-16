@@ -8,6 +8,7 @@ from typing import Union, List
 import streamlit as st
 import openai
 import os
+import re
 
 
 from IPython.display import Markdown, display
