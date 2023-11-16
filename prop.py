@@ -143,9 +143,12 @@ response_template = """
 
 # Define chat_to_sql function
 def chat_to_sql(question, sql_database, service_context, tables=None, synthesize_response=True):
+    table_name = extract_table_name(sql_query)
+    columns = get_columns(table_name, config)
+    
     query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
-        tables=tables,
+        tables=table_name,
         synthesize_response=synthesize_response,
         service_context=service_context,
     )
