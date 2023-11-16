@@ -78,33 +78,39 @@ def generate_gpt3_response(prompt_input):
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
 
         # if sql_query and not sql_query.startswith("ERROR"):
-        #     # try:
-        #         st.write(f"Executing SQL query: {sql_query}")
-        #         # Execute the SQL query
+        #     try:
         #         with engine.connect() as conn:
-        #             # Remove the semicolon if it exists in the query
-        #             sql_query = sql_query
-        #             query_results = conn.execute(text(sql_query))
-        #             st.write(query_results)
-        #             #query_results = result.fetchall()
-        #             response_content = format_query_results(query_results)
-        #     # except Exception as e:
-        #     #     response_content = f"SQL Execution Error: {e}"
+        #             result = conn.execute(text(sql_query))
+        #             st.write(query_results)            # Execute the SQL query
+        #             query_results = result.fetchall()      # Fetch all results
+        #             # Format and display the results
+        #             if query_results:
+        #                 response_content = format_query_results(query_results)
+        #             else:
+        #                 response_content = "No results found."
+        #     except Exception as e:
+        #         response_content = f"SQL Execution Error: {e}"
         # else:
-        #     response_content = "No valid SQL query generated." # Display the error message from chat_to_sql
+        #     response_content = "No valid SQL query generated."
         if sql_query and not sql_query.startswith("ERROR"):
-            try:
-                with engine.connect() as conn:
-                    result = conn.execute(text(sql_query))
-                    st.write(query_results)            # Execute the SQL query
-                    query_results = result.fetchall()      # Fetch all results
-                    # Format and display the results
-                    if query_results:
-                        response_content = format_query_results(query_results)
-                    else:
-                        response_content = "No results found."
-            except Exception as e:
-                response_content = f"SQL Execution Error: {e}"
+            # Extract table name and check schema
+            table_name = extract_table_name(sql_query)
+            if table_name:
+                columns = get_columns(table_name, config)
+                # Check if the query columns are valid
+                if all(column in columns for column in extract_columns(sql_query)):
+                    try:
+                        # Execute the SQL query
+                        with engine.connect() as conn:
+                            result = conn.execute(text(sql_query))
+                            query_results = result.fetchall()
+                            response_content = format_query_results(query_results)
+                    except SQLAlchemyError as e:
+                        response_content = f"SQL Execution Error: {e}"
+                else:
+                    response_content = "The query references columns that do not exist in the table."
+            else:
+                response_content = "Could not determine the table from the query."
         else:
             response_content = "No valid SQL query generated."
     else:
