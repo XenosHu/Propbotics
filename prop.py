@@ -83,7 +83,7 @@ def generate_gpt3_response(prompt_input,config):
         table_names = inspector.get_table_names()
         # Generate SQL query
         sql_query = chat_to_sql(prompt_input, sql_database, service_context)
-
+        st.write("Raw query:", sql_query)
         # if sql_query and not sql_query.startswith("ERROR"):
         #     try:
         #         with engine.connect() as conn:
@@ -109,6 +109,7 @@ def generate_gpt3_response(prompt_input,config):
                     with engine.connect() as conn:
                         result = conn.execute(text(sql_query))
                         query_results = result.fetchall()
+                        st.write("Raw query results:", query_results)
                         response_content = format_query_results(query_results)
                 except SQLAlchemyError as e:
                     response_content = f"SQL Execution Error: {e}"
